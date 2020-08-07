@@ -7,7 +7,7 @@ const axios = require( "axios" );
 const cookieParser = require( "cookie-parser" );
 const withAuth = require( "./middleware/auth" )
 
-router.use( withAuth );
+// router.use( withAuth );
 
 router.get( "/checkToken", withAuth, ( req, res ) => {
   res.sendStatus( 200 );
@@ -33,7 +33,7 @@ router.get( "/topMovies", async ( req, res, next ) => {
 
 router.get( "/popularMovies", async ( req, res, next ) => {
 
-  axios.get( "https://api.themoviedb.org/3/movie/popular_rated?api_key=8b01318939795027b44c93d6cfb76940&language=en-US&page=1" )
+  axios.get( "https://api.themoviedb.org/3/movie/popular?api_key=8b01318939795027b44c93d6cfb76940&language=en-US&page=1" )
     .then( response => {
       const popularMovies = response.data.results;
       console.log( popularMovies );
@@ -83,10 +83,6 @@ router.get( "/favoriteMovies", withAuth, ( req, res, next ) => {
     })
 });
 
-router.get( "/register", ( req, res ) => {
-  res.send( "You are in register backend" );
-});
-
 router.post( "/register", async ( req, res, next ) => {
   const name = req.body.name;
   const email = req.body.email;
@@ -102,8 +98,13 @@ router.post( "/register", async ( req, res, next ) => {
     const user = await User.create( data );
     res.status( 200 ).send( "Welcome to the club!" );
   } catch ( e ) {
-    console.error( e );
-    res.status( 500 ).send( "Error registering user! Try again." );
+    if ( User.findOne({ email }) ) {
+      console.error( e );
+      res.status( 400 ).send( "User already in database!." );
+    } else {
+      console.error( e );
+      res.status( 500 ).send( "Error registering user! Try again." );
+    }
   }
 });
 
@@ -137,18 +138,6 @@ router.post( "/authenticate", async ( req, res, next ) => {
       });
     }
   }
-});
-
-router.get( "/login", ( req, res ) => {
-  res.send( "You are in login backend" );
-});
-
-router.post( "/login", async ( req, res, next ) => {
-  res.send( "You posted login backend" );
-});
-
-router.get( "/login", ( req, res ) => {
-  res.redirect( "/" );
 });
 
 module.exports = router;
