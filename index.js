@@ -10,6 +10,7 @@ mongoose.set( "useFindAndModify", false );
 
 const app = express();
 
+app.use( express.static( __dirname + '../public' ));
 app.use( express.urlencoded({ extended: true }));
 app.use( cookieParser( "secret" ) );
 app.use( express.json() );

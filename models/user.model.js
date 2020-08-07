@@ -20,14 +20,24 @@ const userSchema = mongoose.Schema({
 });
 
 //hash the password
-userSchema.pre( "save", function (next) {
-  bcrypt.hash( this.password, 10, ( err, hash ) => {
-    if ( err ){
-      return next( err );
-    }
-    this.password = hash;
+userSchema.pre( 'save', function( next ) {
+  // Check if document is new or a new password has been set
+  if ( this.isNew || this.isModified( "password" )) {
+    // Saving reference to this because of changing scopes
+    const document = this;
+    bcrypt.hash( document.password, 10,
+      function( err, hashedPassword ) {
+      if ( err ) {
+        next( err );
+      }
+      else {
+        document.password = hashedPassword;
+        next();
+      }
+    });
+  } else {
     next();
-  });
+  }
 });
 
 //authenticate the user with bcrypt
@@ -44,6 +54,17 @@ userSchema.statics.authenticate = async( email, password ) => {
   }
   return null;
 };
+
+//checks in database if user password is right
+userSchema.methods.isCorrectPassword = function( password, callback ){
+  bcrypt.compare( password, this.password, function( err, same ) {
+    if ( err ) {
+      callback( err );
+    } else {
+      callback( err, same );
+    }
+  });
+}
 
 //export the model
 module.exports = mongoose.model( "User", userSchema );
