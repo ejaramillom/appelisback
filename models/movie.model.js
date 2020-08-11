@@ -1,15 +1,19 @@
 const mongoose = require ( "mongoose" );
 
 const movieSchema = mongoose.Schema({
-  name: {
+  title: {
     type: String,
     required: true
   },
-  imdb: {
+  popularity: {
     type: String,
     required: true,
   },
-  image: {
+  poster_path: {
+    type: String,
+    required: true
+  },
+  overview: {
     type: String,
     required: true
   },
